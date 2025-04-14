@@ -1,5 +1,5 @@
 # auto-setup-tool-mac
-This repo provides a fully automated setup for both development tools and a local geospatial database environment on macOS using Ansible and Zsh. It installs GUI apps, dev tools (Java, PHP, Docker), SSH/GitHub config, and a full PostgreSQL + PostGIS stack via Homebrew — no Docker required. Smart CLI with virtualenv isolation, secret management, and modular playbooks.
+This repo provides an automated setup for both development tools and a local geospatial database environment on macOS using Ansible and Zsh. It installs GUI apps, dev tools (Java, PHP, Docker), SSH/GitHub config, and a full PostgreSQL + PostGIS stack via Homebrew — no Docker required. Smart CLI with virtualenv isolation, secret management, and modular playbooks.
 
 © 2025 Peter Nezval
 
