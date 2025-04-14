@@ -1,0 +1,72 @@
+# -- Ansible playbook --
+
+- name: Install db and create db users
+  hosts: localhost
+  connection: local
+  gather_facts: true
+  become: false  # Ensure privilege escalation is off
+
+  vars_files:
+    - vars/secrets.yml
+
+  tasks:
+
+    - name: Install PostgreSQL and PostGIS
+      homebrew:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - postgresql@14
+        - postgis
+        - pgadmin4
+
+    - name: Start PostgreSQL service
+      shell: brew services start postgresql
+      register: pg_service
+      changed_when: "'successfully started' in pg_service.stdout"
+
+    - name: Create PostgreSQL superuser
+      postgresql_user:
+        name: pn-admin
+        password: "{{ admin_password }}"
+        role_attr_flags: "SUPERUSER"
+        encrypted: yes
+        login_user: "{{ lookup('env', 'USER') }}"
+        login_unix_socket: /tmp
+        login_db: postgres
+
+    - name: Create PostgreSQL database
+      postgresql_db:
+        name: test_db
+        owner: pn-admin
+        encoding: UTF8
+        login_user: "{{ ansible_user_id }}"
+        login_unix_socket: /tmp
+
+    - name: Create standard PostgreSQL user
+      postgresql_user:
+        name: db-user
+        password: "{{ user_password }}"
+        encrypted: yes
+        login_user: "{{ lookup('env', 'USER') }}"
+        login_db: postgres
+        login_unix_socket: /tmp
+
+    - name: Grant privileges to db-user
+      postgresql_privs:
+        db: test_db
+        role: db-user
+        type: database
+        privs: ALL
+        login_user: "{{ ansible_user_id }}"
+        login_unix_socket: /tmp
+
+    - name: Enable PostGIS extension
+      community.postgresql.postgresql_ext:
+        name: postgis
+        db: test_db
+        state: present
+        login_user: pn-admin
+        login_password: "{{ admin_password }}"
+        login_unix_socket: /tmp
+

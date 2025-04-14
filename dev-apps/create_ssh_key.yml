@@ -1,0 +1,72 @@
+# -- Ansible playbook --
+
+- name: Generate SSH key pair and configure GitHub
+  hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars_prompt:
+    - name: "git_user_name"
+      prompt: "Enter your Git username"
+      private: no
+    - name: "git_user_email"
+      prompt: "Enter your Git email"
+      private: no
+
+  vars:
+    ssh_key_path: "{{ lookup('env', 'HOME') }}/.ssh/id_rsa_custom"
+    ssh_key_comment: "generated-by-ansible"
+
+  tasks:
+
+    - name: Ensure .ssh directory exists
+      file:
+        path: "{{ ssh_key_path | dirname }}"
+        state: directory
+        mode: '0700'
+        owner: "{{ lookup('env', 'USER') }}"
+
+    - name: Generate an SSH key pair
+      community.crypto.openssh_keypair:
+        path: "{{ ssh_key_path }}"
+        type: rsa
+        size: 4096
+        comment: "{{ ssh_key_comment }}"
+        force: false
+        mode: '0600'
+        owner: "{{ lookup('env', 'USER') }}"
+
+    - name: Start ssh-agent and add the SSH key
+      shell: |
+        eval "$(ssh-agent -s)"
+        ssh-add "{{ ssh_key_path }}"
+      environment:
+        SSH_AUTH_SOCK: "{{ lookup('env', 'SSH_AUTH_SOCK') }}"
+      when: ssh_key_path is defined
+
+    - name: Show public key
+      debug:
+        msg: "{{ lookup('file', ssh_key_path + '.pub') }}"
+
+    - name: Install GitHub CLI if not present
+      homebrew:
+        name: gh
+        state: present
+
+    - name: Set global Git username
+      command: git config --global user.name "{{ git_user_name }}"
+
+    - name: Set global Git email
+      command: git config --global user.email "{{ git_user_email }}"
+
+    - name: Skip GitHub CLI login if already authenticated
+      stat:
+        path: "{{ lookup('env','HOME') }}/.config/gh/hosts.yml"
+      register: gh_auth
+
+    - name: Log in to GitHub CLI using SSH if not already logged in
+      shell: gh auth login --git-protocol ssh --web
+      when: not gh_auth.stat.exists
+
+
+

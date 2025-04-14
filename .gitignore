@@ -1,0 +1,43 @@
+# === Python virtual environment ===
+.ansible-env/
+__pycache__/
+*.pyc
+
+# === Ansible secrets ===
+vars/secrets.yml
+*.vault.yml
+*.vault
+*.enc.yml
+
+# === Logs and temporary files ===
+*.log
+*.retry
+*.tmp
+*.bak
+*.swp
+*.swo
+*.DS_Store
+
+# === macOS metadata ===
+.DS_Store
+
+# === System & IDE-specific ===
+.vscode/
+.idea/
+.envrc
+.env
+*.code-workspace
+
+# === Inventory-specific files (optional) ===
+inventory/host_vars/
+inventory/group_vars/
+
+# === SSH Key files (if ever stored here — just in case) ===
+*.pem
+*.pub
+*.key
+*.crt
+id_*
+
+# === Files created by script runs ===
+ansible-tmp-*/

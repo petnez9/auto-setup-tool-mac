@@ -1,0 +1,19 @@
+# -- Ansible playbook--
+
+- name: Install apps and set up macOS
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Install cask apps
+      homebrew_cask:
+        name: "{{ item }}"
+        state: present
+      loop:
+        - qgis
+        - pycharm-ce
+        - intellij-idea
+        - visual-studio-code
+        - eclipse-ide
+

@@ -1,0 +1,61 @@
+# -- Ansible playbook--
+
+- name: Install services and dev tools
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  tasks: 
+
+    - name: Check if Java is installed
+      command: java -version
+      register: java_check
+      ignore_errors: true
+
+    - name: Install Java if not installed
+      homebrew:
+        name: openjdk
+        state: present
+      when: java_check.rc != 0
+
+    - name: Symlink Java to /Library/Java/JavaVirtualMachines
+      become: true
+      file:
+        src: "{{ lookup('pipe', 'brew --prefix openjdk') }}/libexec/openjdk.jdk"
+        dest: /Library/Java/JavaVirtualMachines/openjdk.jdk
+        state: link
+        force: true
+
+    - name: Check if PHP is installed
+      command: php -v
+      register: php_check
+      ignore_errors: true
+
+    - name: Install PHP if not installed
+      homebrew:
+        name: php
+        state: present
+      when: php_check.rc != 0
+
+    - name: Check if Docker is installed
+      command: docker --version
+      register: docker_check
+      ignore_errors: true
+
+    - name: Install Docker if not installed
+      homebrew_cask:
+        name: docker
+        state: present
+      when: docker_check.rc != 0
+
+    - name: Check if Git is installed
+      command: git --version
+      register: git_check
+      ignore_errors: true
+
+    - name: Install Git if not installed
+      homebrew:
+        name: git
+        state: present
+      when: git_check.rc != 0
+      
