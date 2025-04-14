@@ -3,7 +3,7 @@ This repo provides a fully automated setup for both development tools and a loca
 
 © 2025 Peter Nezval
 
-# 🧰 Smart macOS Dev + PostGIS Environment Setup (No Docker)
+# 🧰 Smart macOS Dev + PostGIS Environment Setup
 
 This repository provides a modular, automated setup for:
 
