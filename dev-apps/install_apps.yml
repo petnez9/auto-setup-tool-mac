@@ -13,7 +13,6 @@
       loop:
         - qgis
         - pycharm-ce
-        - intellij-idea
+        - intellij-idea-ce
         - visual-studio-code
         - eclipse-ide
-
